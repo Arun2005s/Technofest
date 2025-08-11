@@ -6,6 +6,9 @@ const int buzzerPin = 8;
 const int fanPin = 7;
 int threshold = 300;
 
+unsigned long fanOnTime = 0;
+bool fanRunning = false;
+
 void setup() {
   Serial.begin(9600);
   pinMode(buzzerPin, OUTPUT);
@@ -21,18 +24,24 @@ void loop() {
   Serial.print("Gas Sensor Value: ");
   Serial.println(gasValue);
 
+
   if (gasValue > threshold) {
     Serial.println("🚨 Gas Leak Detected!");
     digitalWrite(buzzerPin, HIGH);
     digitalWrite(fanPin, HIGH);
+    fanOnTime = millis();
+    fanRunning = true;
     regulator.write(90);
     delay(2000);
     digitalWrite(buzzerPin, LOW);
-  } else {
-    regulator.write(0);
-    digitalWrite(buzzerPin, LOW);
-    digitalWrite(fanPin, LOW);
   }
 
-  delay(500);
+
+  if (fanRunning && (millis() - fanOnTime >= 10000)) {
+    digitalWrite(fanPin, LOW);
+    fanRunning = false;
+    regulator.write(0); 
+  }
+
+  delay(200);
 }
