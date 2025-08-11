@@ -3,11 +3,15 @@
 Servo regulator;
 const int gasPin = A0;
 const int buzzerPin = 8;
-int threshold = 250;
+const int fanPin = 7;
+int threshold = 300;
 
 void setup() {
   Serial.begin(9600);
   pinMode(buzzerPin, OUTPUT);
+  pinMode(fanPin, OUTPUT);
+  digitalWrite(fanPin, LOW);
+  
   regulator.attach(9);
   regulator.write(0);
 }
@@ -20,12 +24,14 @@ void loop() {
   if (gasValue > threshold) {
     Serial.println("🚨 Gas Leak Detected!");
     digitalWrite(buzzerPin, HIGH);
+    digitalWrite(fanPin, HIGH);
     regulator.write(90);
     delay(2000);
     digitalWrite(buzzerPin, LOW);
   } else {
     regulator.write(0);
     digitalWrite(buzzerPin, LOW);
+    digitalWrite(fanPin, LOW);
   }
 
   delay(500);
