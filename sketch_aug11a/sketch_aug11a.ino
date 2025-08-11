@@ -1,25 +1,32 @@
-const int gasSensorPin = A0;  // Analog pin connected to MQ-5 AOUT
-const int buzzerPin = 3;      // Digital pin connected to buzzer
-const int threshold = 300;    // Adjust this based on your testing
+#include <Servo.h>
+
+Servo regulator;
+const int gasPin = A0;
+const int buzzerPin = 8;
+int threshold = 250;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(gasSensorPin, INPUT);
   pinMode(buzzerPin, OUTPUT);
-  digitalWrite(buzzerPin, LOW); // Ensure buzzer is off at start
+  regulator.attach(9);
+  regulator.write(0);
 }
 
 void loop() {
-  int gasValue = analogRead(gasSensorPin);
-  Serial.print("Gas Level: ");
+  int gasValue = analogRead(gasPin);
+  Serial.print("Gas Sensor Value: ");
   Serial.println(gasValue);
 
   if (gasValue > threshold) {
-    digitalWrite(buzzerPin, HIGH); // Buzzer ON
-    Serial.println("Gas Detected!");
+    Serial.println("🚨 Gas Leak Detected!");
+    digitalWrite(buzzerPin, HIGH);
+    regulator.write(90);
+    delay(2000);
+    digitalWrite(buzzerPin, LOW);
   } else {
-    digitalWrite(buzzerPin, LOW);  // Buzzer OFF
+    regulator.write(0);
+    digitalWrite(buzzerPin, LOW);
   }
 
-  delay(500); // Adjust as needed
+  delay(500);
 }
